@@ -9,6 +9,7 @@ var messageArea = document.querySelector('#messageArea');
 var connectingElement = document.querySelector('.connecting');
 var userList = document.querySelector('#userList');
 var toggleDarkModeButton = document.querySelector('#toggle-dark-mode');
+var leaveSessionButton = document.querySelector('#leave-session-button');
 
 var stompClient = null;
 var username = null;
@@ -17,7 +18,6 @@ var colors = [
     '#2196F3', '#32c787', '#00BCD4', '#ff5652',
     '#ffc107', '#ff85af', '#FF9800', '#39bbb0'
 ];
-
 
 var forbiddenWords = ["anas", "nigger", "emsi"];
 
@@ -41,13 +41,17 @@ function connect(event) {
 }
 
 function onConnected() {
-
     stompClient.subscribe('/topic/public', onMessageReceived);
+    stompClient.subscribe('/topic/users', onUserListReceived);
 
     stompClient.send("/app/chat.addUser",
         {},
         JSON.stringify({ sender: username, type: 'JOIN' })
-    )
+    );
+
+    setInterval(() => {
+        stompClient.send("/app/chat.getUsers", {}, {});
+    }, 500);
 
     connectingElement.classList.add('hidden');
 }
@@ -73,6 +77,20 @@ function sendMessage(event) {
         messageInput.value = '';
     }
     event.preventDefault();
+}
+
+function logout(event) {
+    var chatMessage = {
+        sender: username,
+        type: 'LEAVE'
+    };
+
+    stompClient.send("/app/chat.removeUser", {}, JSON.stringify(chatMessage));
+
+    stompClient.disconnect();
+
+    usernamePage.classList.remove('hidden');
+    chatPage.classList.add('hidden');
 }
 
 function onMessageReceived(payload) {
@@ -120,6 +138,14 @@ function onMessageReceived(payload) {
     }
 }
 
+function onUserListReceived(payload) {
+    var users = JSON.parse(payload.body);
+    userList.innerHTML = '';
+    users.forEach(function (user) {
+        userList.insertAdjacentHTML('beforeend', '<li>' + user + '</li>');
+    });
+}
+
 function getAvatarColor(messageSender) {
     var hash = 0;
     for (var i = 0; i < messageSender.length; i++) {
@@ -136,4 +162,5 @@ function toggleDarkMode() {
 
 usernameForm.addEventListener('submit', connect, true);
 messageForm.addEventListener('submit', sendMessage, true);
+leaveSessionButton.addEventListener('click', logout, true);
 toggleDarkModeButton.addEventListener('click', toggleDarkMode, true);
