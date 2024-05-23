@@ -1,6 +1,6 @@
 # JAVACHAT
 JAVAChat is a real-time Web public Chat application where you can join a (Room) To talk, You can authenticate your self using a username, ofc there's a forbidden words you cant send (discorver it your self ;) ) 
-Usernames and messages are all saved in a localdatabase, and finally in order to protect your eyes, there's Darkmode feature ![Capture d'écran 2024-05-23 090457](https://github.com/ouaskanas/JavaChat/assets/83678973/493f27e2-d15a-4450-8a8c-897a0529f30f)
+Usernames and messages are all saved in a localdatabase, and finally in order to protect your eyes, there's Darkmode feature
 
 
 # SetUp 
